@@ -15,5 +15,4 @@ This is a full-stack coffee shop website.
 
 ## Deployment
 Configured for deployment on **Render** using the included `render.yaml`.
-**Admin Email**: nahom@kaffa.com
-**Admin Password**: WANKE1234
+
