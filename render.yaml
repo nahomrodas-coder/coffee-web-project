@@ -3,4 +3,4 @@ services:
     name: coffee-web
     env: static
     branch: main
-    staticPublishPath: /
+    staticPublishPath: .
