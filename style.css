@@ -74,7 +74,9 @@ nav {
 
 /* Hero/Legend Section */
 .legend {
-    height: 100vh;
+    min-height: 100vh;
+    padding-top: 80px;
+    /* Offset for fixed navbar */
     background: url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=2000&q=80') center/cover;
     display: flex;
     align-items: center;
@@ -82,7 +84,6 @@ nav {
     text-align: center;
     position: relative;
     color: white;
-    /* Ensure text is visible */
 }
 
 .legend::before {
@@ -535,6 +536,91 @@ footer {
     .gallery-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Cart Modal Styles */
+.cart-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.cart-content {
+    background-color: var(--white);
+    margin: 10% auto;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.close-cart {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--dark-brown);
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+
+.cart-item h4 {
+    margin-bottom: 0.5rem;
+    color: var(--dark-brown);
+}
+
+.remove-btn {
+    background: #ff4444;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.cart-total {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--gold);
+    text-align: right;
+    font-size: 1.2rem;
+    color: var(--dark-brown);
+}
+
+.checkout-btn {
+    display: block;
+    width: 100%;
+    background: var(--gold);
+    color: var(--dark-brown);
+    padding: 1rem;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.checkout-btn:hover {
+    background: var(--dark-brown);
+    color: var(--gold);
 }
 
 html {

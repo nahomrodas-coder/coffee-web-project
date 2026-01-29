@@ -23,7 +23,8 @@
                 <li><a href="#products">Products</a></li>
                 <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#contact">Contact</a></li>
-                <li><a href="#"><i class="fas fa-shopping-cart"></i> Cart</a></li>
+                <li><a href="#" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i> Cart <span
+                            id="cart-count">(0)</span></a></li>
             </ul>
         </div>
     </nav>
@@ -59,8 +60,7 @@
                     <a href="#contact" class="learn-more">Visit Our Roastery →</a>
                 </div>
                 <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1587734195503-904137cec4a6?auto=format&fit=crop&w=1000&q=80"
-                        alt="Ethiopian coffee farmer">
+                    <img src="images/farmers.png" alt="Ethiopian coffee farmer">
                 </div>
             </div>
 
@@ -159,8 +159,7 @@
             <h2 class="section-title">our premium collection</h2>
             <div class="products-grid">
                 <div class="product-card">
-                    <div class="product-image"
-                        style="background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80');">
+                    <div class="product-image" style="background-image: url('images/field.png');">
                     </div>
                     <div class="product-content">
                         <h3>Kaffa Wild Forest</h3>
@@ -171,7 +170,8 @@
                             <span class="roast"><i class="fas fa-fire"></i> Medium Roast</span>
                         </div>
                         <div class="price">50 birr / one cup</div>
-                        <button class="add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                        <button class="add-to-cart" onclick="addToCart('Kaffa Wild Forest', 50)"><i
+                                class="fas fa-shopping-cart"></i> Add to Cart</button>
                     </div>
                 </div>
 
@@ -188,13 +188,14 @@
                             <span class="roast"><i class="fas fa-fire"></i> Light Roast</span>
                         </div>
                         <div class="price">50 birr / one cup</div>
-                        <button class="add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                        <button class="add-to-cart" onclick="addToCart('Kaffa Mountain', 50)"><i
+                                class="fas fa-shopping-cart"></i> Add to Cart</button>
                     </div>
                 </div>
 
                 <div class="product-card">
                     <div class="product-image"
-                        style="background-image: url('https://images.unsplash.com/photo-1510707577719-ae7c9b788690?auto=format&fit=crop&w=600&q=80');">
+                        style="background-image: url('https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80');">
                     </div>
                     <div class="product-content">
                         <h3>harrar dry process</h3>
@@ -205,13 +206,13 @@
                             <span class="roast"><i class="fas fa-fire"></i> Dark Roast</span>
                         </div>
                         <div class="price">50 birr / one cup</div>
-                        <button class="add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                        <button class="add-to-cart" onclick="addToCart('Harrar Dry Process', 50)"><i
+                                class="fas fa-shopping-cart"></i> Add to Cart</button>
                     </div>
                 </div>
 
                 <div class="product-card">
-                    <div class="product-image"
-                        style="background-image: url('https://images.unsplash.com/photo-1510707577719-ae7c9b788690?auto=format&fit=crop&w=600&q=80');">
+                    <div class="product-image" style="background-image: url('images/ceremony.png');">
                     </div>
                     <div class="product-content">
                         <h3>ethiopian coffee ceremony Kit</h3>
@@ -222,7 +223,8 @@
                             <span class="roast"><i class="fas fa-gift"></i> Gift Ready</span>
                         </div>
                         <div class="price">50 birr</div>
-                        <button class="add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                        <button class="add-to-cart" onclick="addToCart('Ceremony Kit', 50)"><i
+                                class="fas fa-shopping-cart"></i> Add to Cart</button>
                     </div>
                 </div>
             </div>
@@ -241,15 +243,13 @@
             <h2 class="section-title">Coffee Moments & Culture</h2>
             <div class="gallery-grid">
                 <div class="gallery-item"
-                    style="background-image: url('https://images.unsplash.com/photo-1510707577719-ae7c9b788690?auto=format&fit=crop&w=600&q=80');">
+                    style="background-image: url('https://ethiopiannewsdigest.com/wp-content/uploads/2022/08/UbfrlD04MK00113KDLhZ43sWiotanoNXz9ET24ZUCXzJw7-H8POUNadKddP_uvYwOAiLlHpLdDKswyv49nqZoJVMOTQ0D2Tftn8wO223QSQqFcgdg23hnfTKCbdSBd5YSXStbfIXo-OIbC3yTgJia-A.jpeg');">
                     <div class="gallery-caption">traditional ethiopian Coffee Ceremony</div>
                 </div>
-                <div class="gallery-item"
-                    style="background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80');">
-                    <div class="gallery-caption">wild Coffee Forst of Kaffa</div>
+                <div class="gallery-item" style="background-image: url('images/field.png');">
+                    <div class="gallery-caption">wild Coffee Forest of Kaffa</div>
                 </div>
-                <div class="gallery-item"
-                    style="background-image: url('https://images.unsplash.com/photo-1587734195503-904137cec4a6?auto=format&fit=crop&w=600&q=80');">
+                <div class="gallery-item" style="background-image: url('images/farmers.png');">
                     <div class="gallery-caption">our Farmers at Work</div>
                 </div>
                 <div class="gallery-item"
@@ -331,6 +331,22 @@
         </div>
     </section>
 
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <span class="close-cart" onclick="toggleCart()">&times;</span>
+            <h2>Your Coffee Cart</h2>
+            <div id="cart-items">
+                <!-- Items will appear here -->
+                <p>Your cart is empty.</p>
+            </div>
+            <div class="cart-total">
+                <h3>Total: <span id="cart-total-price">0</span> birr</h3>
+            </div>
+            <button class="checkout-btn" onclick="checkout()">Checkout</button>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer>
         <div class="footer-content container">
@@ -377,6 +393,11 @@
                     <i class="fab fa-cc-paypal"></i>
                     <i class="fab fa-cc-apple-pay"></i>
                 </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>Admin</h4>
+                <a href="login.html" style="font-size: 0.8rem; opacity: 0.5;">Admin Login</a>
             </div>
         </div>
 

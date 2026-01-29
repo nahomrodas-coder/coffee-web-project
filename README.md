@@ -1,2 +1,19 @@
-# coffee-web-project
-A coffee shop website built with HTML, CSS, and JavaScript, adapted and refactored from an online tutorial.
+# Goats of Kaffa - Coffee Shop Website
+
+This is a full-stack coffee shop website. 
+
+## Features
+- **Frontend**: Responsive landing page, interactive shopping cart, and admin login.
+- **Backend**: Node.js server that handles login and saves orders to local JSON files.
+- **Admin**: A dedicated dashboard to view customer orders.
+
+## Local Setup
+1. Clone the repo.
+2. Run `npm install`.
+3. Start the server with `node server.js`.
+4. Open `http://localhost:3005`.
+
+## Deployment
+Configured for deployment on **Render** using the included `render.yaml`.
+**Admin Email**: nahom@kaffa.com
+**Admin Password**: WANKE1234

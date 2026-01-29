@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Goats of Kaffa</title>
+    <style>
+        :root {
+            --primary-brown: #8b4513;
+            --dark-brown: #5d2f0a;
+            --gold: #d4af37;
+            --cream: #f5f5DC;
+            --white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--cream);
+        }
+
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--dark-brown);
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--gold);
+            color: var(--dark-brown);
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 1rem;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        button:hover {
+            background: var(--dark-brown);
+            color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #error {
+            color: #d9534f;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            min-height: 1.2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: var(--primary-brown);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <h2>Admin Login</h2>
+        <div class="input-group">
+            <label for="email">Email</label>
+            <input type="text" id="email" placeholder="Enter your email">
+        </div>
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+
+        <button id="login-btn">Login</button>
+
+        <div id="error"></div>
+
+        <a href="index.html" class="back-link">&larr; Back to Website</a>
+    </div>
+
+    <script>
+        // Set default values after load so it doesn't "lock" the field in some browsers
+        window.addEventListener('load', () => {
+            document.getElementById('email').value = "nahom@kaffa.com";
+            document.getElementById('password').value = "WANKE1234";
+        });
+
+        async function performLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('error');
+            const btn = document.getElementById('login-btn');
+
+            errorEl.textContent = '';
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+
+            try {
+                // Point to the specific server URL to avoid CORS/file issues
+                const response = await fetch('http://localhost:3005/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    errorEl.textContent = data.message || 'Invalid credentials';
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                errorEl.textContent = 'Could not connect to server. Is it running?';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Login';
+            }
+        }
+
+        document.getElementById('login-btn').addEventListener('click', performLogin);
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performLogin();
+        });
+    </script>
+</body>
+
+</html>
