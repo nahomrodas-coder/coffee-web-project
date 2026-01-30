@@ -7,14 +7,25 @@
     <title>goats of kaffa</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://kit.fontawesome.com/78444c0a5e.js" crossorigin="anonymous"></script>
-    <script>
-        if (window.location.protocol === 'file:') {
-            alert('CRITICAL: You are opening this file directly from your computer. The server features (Order, Checkout, Admin) will NOT work.\n\nPlease open your browser and go to: http://localhost:3005');
-        }
-    </script>
 </head>
 
 <body>
+    <div id="protocol-warning" class="warning-banner">
+        <div class="banner-content">
+            <span>💡 <strong>Note:</strong> Server features require the server: <a
+                    href="http://localhost:3005">http://localhost:3005</a></span>
+            <button class="close-banner" onclick="dismissBanner()">&times;</button>
+        </div>
+    </div>
+    <script>
+        if (window.location.protocol === 'file:' && !localStorage.getItem('bannerDismissed')) {
+            document.getElementById('protocol-warning').style.display = 'block';
+        }
+        function dismissBanner() {
+            document.getElementById('protocol-warning').style.display = 'none';
+            localStorage.setItem('bannerDismissed', 'true');
+        }
+    </script>
     <!-- Navigation -->
     <nav id="navbar">
         <div class="nav-container">
@@ -28,6 +39,10 @@
                 <li><a href="#products">Products</a></li>
                 <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#contact">Contact</a></li>
+                <li id="nav-auth">
+                    <a href="#" onclick="handleNavAuth()"><i class="fas fa-user"></i> <span
+                            id="auth-btn-text">Login</span></a>
+                </li>
                 <li><a href="#" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i> Cart <span
                             id="cart-count">(0)</span></a></li>
             </ul>
@@ -349,6 +364,114 @@
                 <h3>Total: <span id="cart-total-price">0</span> birr</h3>
             </div>
             <button class="checkout-btn" onclick="checkout()">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Welcome Back</h2>
+                <p>Please login to continue with your order</p>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="modal-btn">Login</button>
+            </form>
+            <p class="modal-footer-text">Don't have an account? <a href="#" onclick="showSignup()">Sign up here</a></p>
+            <p class="modal-footer-text" style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">
+                Staff member? <a href="login.html">Admin Login</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeSignupModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Join Our Community</h2>
+                <p>Create an account to start your coffee journey</p>
+            </div>
+            <form id="signup-form" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="modal-btn">Sign Up</button>
+            </form>
+            <p class="modal-footer-text">Already have an account? <a href="#" onclick="showLoginFromSignup()">Login
+                    here</a></p>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Complete Your Payment</h2>
+                <p>Choose your preferred payment method</p>
+            </div>
+            <div class="payment-summary">
+                <p>Order Total: <span id="payment-amount">0</span> birr</p>
+            </div>
+            <div class="payment-options">
+                <div class="payment-method active" onclick="selectPaymentMethod(this, 'card')">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Credit Card</span>
+                </div>
+                <div class="payment-method" onclick="selectPaymentMethod(this, 'telebirr')">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Telebirr</span>
+                </div>
+                <div class="payment-method" onclick="selectPaymentMethod(this, 'paypal')">
+                    <i class="fab fa-paypal"></i>
+                    <span>PayPal</span>
+                </div>
+            </div>
+            <form id="payment-form" onsubmit="handlePayment(event)">
+                <div id="card-details" class="payment-details visible">
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="xxxx xxxx xxxx xxxx" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="text" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CVC</label>
+                            <input type="text" placeholder="xxx" required>
+                        </div>
+                    </div>
+                </div>
+                <div id="telebirr-details" class="payment-details">
+                    <p>Enter your phone number to receive a payment prompt.</p>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" placeholder="+251 9xx xxx xxx">
+                    </div>
+                </div>
+                <button type="submit" class="modal-btn">Pay Now</button>
+            </form>
         </div>
     </div>
 

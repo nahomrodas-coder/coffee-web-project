@@ -1,9 +1,11 @@
 let cart = JSON.parse(localStorage.getItem('coffeeCart')) || [];
+let currentUser = null;
+const API_BASE = window.location.origin === 'null' || window.location.protocol === 'file:'
+    ? 'http://localhost:3005'
+    : '';
 
-// Update Cart Count on Load
 updateCartCount();
 
-// Toggle Menu
 function toggleMenu() {
     const navLinks = document.querySelector('.nav-links');
     navLinks.classList.toggle('active');
@@ -71,34 +73,205 @@ function renderCartItems() {
 function checkout() {
     if (cart.length === 0) return alert("Cart is empty!");
 
-    fetch('/api/orders', {
+    // Check if logged in
+    if (!currentUser) {
+        if (document.getElementById('cart-modal').style.display === 'block') {
+            toggleCart(); // Close cart
+        }
+        showLoginModal();
+    } else {
+        if (document.getElementById('cart-modal').style.display === 'block') {
+            toggleCart(); // Close cart
+        }
+        showPaymentModal();
+    }
+}
+
+
+function handleNavAuth() {
+    if (currentUser) {
+        // Simple logout for now, or could show account modal
+        if (confirm(`Logged in as ${currentUser.email}. Do you want to logout?`)) {
+            currentUser = null;
+            updateAuthUI();
+            showNotification("Logged out successfully");
+        }
+    } else {
+        showLoginModal();
+    }
+}
+
+function updateAuthUI() {
+    const authBtnText = document.getElementById('auth-btn-text');
+    const navAuth = document.getElementById('nav-auth');
+
+    if (currentUser) {
+        authBtnText.textContent = currentUser.email.split('@')[0]; // Show username
+        if (currentUser.role === 'admin') {
+            authBtnText.innerHTML = `Admin <i class="fas fa-user-shield"></i>`;
+        }
+    } else {
+        authBtnText.textContent = "Login";
+    }
+}
+
+// Login Modal Functions
+function showLoginModal() {
+    document.getElementById('login-modal').style.display = 'block';
+}
+
+function closeLoginModal() {
+    document.getElementById('login-modal').style.display = 'none';
+}
+
+function showSignup() {
+    closeLoginModal();
+    document.getElementById('signup-modal').style.display = 'block';
+}
+
+function closeSignupModal() {
+    document.getElementById('signup-modal').style.display = 'none';
+}
+
+function showLoginFromSignup() {
+    closeSignupModal();
+    showLoginModal();
+}
+
+function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    fetch(`${API_BASE}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            items: cart,
-            total: cart.reduce((sum, item) => sum + item.price, 0),
-            date: new Date()
-        })
+        body: JSON.stringify({ email, password })
     })
-        .then(res => {
-            if (!res.ok) throw new Error('Server returned ' + res.status);
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
-            alert("Order placed successfully!");
-            cart = [];
-            localStorage.setItem('coffeeCart', JSON.stringify(cart));
-            updateCartCount();
-            toggleCart();
+            if (data.success) {
+                currentUser = { email, role: data.role };
+                closeLoginModal();
+                updateAuthUI(); // Update navigation text
+                showNotification(`Logged in as ${email}`);
+
+                // If they were checking out, show payment modal
+                if (cart.length > 0) {
+                    showPaymentModal();
+                }
+            } else {
+                alert(data.message || "Invalid credentials");
+            }
         })
         .catch(err => {
-            console.error('Checkout Error:', err);
-            if (err.message.includes('Failed to fetch')) {
-                alert("Order Error: Could not reach the server. Please ensure the server is running at http://localhost:3005 and try again.");
-            } else {
-                alert("Order Error: " + err.message);
-            }
+            console.error('Login Error:', err);
+            alert("Login failed. Check console for details.");
         });
+}
+
+function handleSignup(event) {
+    event.preventDefault();
+    const name = document.getElementById('signup-name').value;
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+
+    // Simulate signup (since we don't have a signup API yet, we'll just log them in)
+    // In a real app, you'd POST to /api/signup
+    showNotification("Account created! Logging you in...");
+
+    setTimeout(() => {
+        currentUser = { email, role: 'customer', name };
+        closeSignupModal();
+        updateAuthUI();
+        if (cart.length > 0) {
+            showPaymentModal();
+        }
+    }, 1000);
+}
+
+// Payment Modal Functions
+function showPaymentModal() {
+    const modal = document.getElementById('payment-modal');
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    document.getElementById('payment-amount').textContent = total;
+    modal.style.display = 'block';
+}
+
+function closePaymentModal() {
+    document.getElementById('payment-modal').style.display = 'none';
+}
+
+function selectPaymentMethod(element, method) {
+    // Update active UI
+    document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+
+    // Show/hide relevant fields
+    document.querySelectorAll('.payment-details').forEach(el => el.classList.remove('visible'));
+    document.getElementById(`${method}-details`)?.classList.add('visible');
+
+    // If paypal, maybe just show a button or info
+}
+
+function handlePayment(event) {
+    event.preventDefault();
+    const payBtn = event.target.querySelector('.modal-btn');
+    const originalText = payBtn.textContent;
+
+    payBtn.textContent = 'Processing...';
+    payBtn.disabled = true;
+
+    // Simulate payment processing delay
+    setTimeout(() => {
+        if (!currentUser || !currentUser.email) {
+            alert("Error: You must be logged in to place an order.");
+            payBtn.textContent = originalText;
+            payBtn.disabled = false;
+            return;
+        }
+
+        // Send order to backend after "payment"
+        fetch(`${API_BASE}/api/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                items: cart,
+                total: cart.reduce((sum, item) => sum + item.price, 0),
+                user: currentUser.email,
+                date: new Date()
+            })
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(errData => {
+                        throw new Error(errData.message || `Server returned ${res.status}`);
+                    }).catch(() => {
+                        throw new Error(`Server returned ${res.status}`);
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showNotification("Order placed successfully!");
+                    cart = [];
+                    localStorage.setItem('coffeeCart', JSON.stringify(cart));
+                    updateCartCount();
+                    closePaymentModal();
+                } else {
+                    alert("Order error: " + (data.message || "Unknown error"));
+                    payBtn.textContent = originalText;
+                    payBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error('Payment/Order Error:', err);
+                alert("Order failed: " + err.message);
+                payBtn.textContent = originalText;
+                payBtn.disabled = false;
+            });
+    }, 1500);
 }
 
 // Smooth Scrolling and Mobile Menu Close

@@ -47,6 +47,7 @@ app.post('/api/orders', (req, res) => {
 
         const newOrder = {
             id: newId,
+            user: req.body.user || 'Guest',
             items: req.body.items,
             total: req.body.total,
             date: new Date().toLocaleString(),

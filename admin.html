@@ -7,17 +7,28 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        :root {
+            --primary-brown: #8b4513;
+            --dark-brown: #5d2f0a;
+            --gold: #d4af37;
+            --cream: #f5f5DC;
+            --light-gray: #f4f4f4;
+        }
+
         body {
+            margin: 0;
             padding: 2rem;
             background: var(--light-gray);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             padding: 2rem;
             border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         table {
@@ -39,29 +50,83 @@
         }
 
         tr:hover {
-            background-color: #f5f5f5;
+            background-color: #f9f9f9;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .logout {
-            color: red;
+            color: #d9534f;
             text-decoration: none;
             font-weight: bold;
+            padding: 8px 15px;
+            border: 1px solid #d9534f;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .logout:hover {
+            background: #d9534f;
+            color: white;
+        }
+
+        /* Warning Banner Tool */
+        .warning-banner {
+            display: none;
+            background: #ff4444;
+            color: white;
+            text-align: center;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            position: relative;
+            margin: -2rem -2rem 2rem -2rem;
+            z-index: 5000;
+        }
+
+        .banner-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .close-banner {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
         }
     </style>
-    <script>
-        if (window.location.protocol === 'file:') {
-            alert('CRITICAL: You are opening this file directly from your computer. Order data will NOT load.\n\nPlease go to: http://localhost:3005/admin.html');
-        }
-    </script>
 </head>
 
 <body>
+    <div id="protocol-warning" class="warning-banner">
+        <div class="banner-content">
+            <span>💡 <strong>Note:</strong> Dashboard requires the server: <a href="http://localhost:3005/admin.html"
+                    style="color:white; font-weight:bold;">http://localhost:3005/admin.html</a></span>
+            <button class="close-banner" onclick="dismissBanner()">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        if (window.location.protocol === 'file:' && !localStorage.getItem('bannerDismissedAdmin')) {
+            document.getElementById('protocol-warning').style.display = 'block';
+        }
+        function dismissBanner() {
+            document.getElementById('protocol-warning').style.display = 'none';
+            localStorage.setItem('bannerDismissedAdmin', 'true');
+        }
+    </script>
+
     <div class="container">
         <div class="header">
             <h1>Admin Orders</h1>
@@ -69,9 +134,9 @@
         </div>
 
         <div class="controls" style="margin: 20px 0; display: flex; gap: 10px;">
-            <input type="text" id="search-input" placeholder="Search by ID..."
-                style="padding: 8px; border-radius: 5px; border: 1px solid #ddd; flex-grow: 1;">
-            <select id="status-filter" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+            <input type="text" id="search-input" placeholder="Search by ID or Email..."
+                style="padding: 10px; border-radius: 5px; border: 1px solid #ddd; flex-grow: 1;">
+            <select id="status-filter" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
                 <option value="">All Statuses</option>
                 <option value="Pending">Pending</option>
                 <option value="Preparing">Preparing</option>
@@ -86,6 +151,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Date</th>
+                    <th>User</th>
                     <th>Total</th>
                     <th>Status</th>
                 </tr>
@@ -97,16 +163,20 @@
     </div>
 
     <script>
+        const API_BASE = window.location.origin === 'null' || window.location.protocol === 'file:'
+            ? 'http://localhost:3005'
+            : '';
         let allOrders = [];
 
         async function loadOrders() {
             try {
-                const res = await fetch('/api/admin/orders');
+                const res = await fetch(`${API_BASE}/api/admin/orders`);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 allOrders = await res.json();
                 renderOrders(allOrders);
             } catch (err) {
                 console.error(err);
-                alert('Failed to load orders');
+                document.getElementById('orders-body').innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding: 20px;">Failed to load orders: ${err.message}. Ensure server is running.</td></tr>`;
             }
         }
 
@@ -116,9 +186,10 @@
                 <tr>
                     <td>#${order.id}</td>
                     <td>${order.date}</td>
+                    <td>${order.user || 'Guest'}</td>
                     <td>${order.total} birr</td>
                     <td>
-                        <select onchange="updateStatus(${order.id}, this.value)" style="padding: 5px; border-radius: 3px;">
+                        <select onchange="updateStatus(${order.id}, this.value)" style="padding: 5px; border-radius: 3px; border: 1px solid #ddd;">
                             <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
                             <option value="Preparing" ${order.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
                             <option value="Out for Delivery" ${order.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
@@ -132,7 +203,7 @@
 
         async function updateStatus(id, newStatus) {
             try {
-                const res = await fetch(`/api/admin/orders/${id}/status`, {
+                const res = await fetch(`${API_BASE}/api/admin/orders/${id}/status`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: newStatus })
@@ -141,21 +212,22 @@
                 if (res.ok) {
                     console.log(`Order ${id} updated to ${newStatus}`);
                 } else {
-                    alert('Failed to update status');
+                    const data = await res.json();
+                    alert('Update failed: ' + (data.message || 'Unknown error'));
                 }
             } catch (err) {
                 console.error(err);
-                alert('Connection error updating status');
+                alert('Connection error updating status: ' + err.message);
             }
         }
 
-        // Filtering logic
         function filterOrders() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             const statusFilter = document.getElementById('status-filter').value;
 
             const filtered = allOrders.filter(order => {
-                const matchesSearch = order.id.toString().includes(searchTerm);
+                const matchesSearch = order.id.toString().includes(searchTerm) ||
+                    (order.user && order.user.toLowerCase().includes(searchTerm));
                 const matchesStatus = statusFilter === '' || order.status === statusFilter;
                 return matchesSearch && matchesStatus;
             });
