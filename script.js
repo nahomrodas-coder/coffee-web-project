@@ -71,7 +71,7 @@ function renderCartItems() {
 function checkout() {
     if (cart.length === 0) return alert("Cart is empty!");
 
-    fetch('http://localhost:3005/api/orders', {
+    fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -80,7 +80,10 @@ function checkout() {
             date: new Date()
         })
     })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error('Server returned ' + res.status);
+            return res.json();
+        })
         .then(data => {
             alert("Order placed successfully!");
             cart = [];
@@ -89,8 +92,12 @@ function checkout() {
             toggleCart();
         })
         .catch(err => {
-            console.error(err);
-            alert("Order Error: Could not reach the server. Please ensure the server is running and try again.");
+            console.error('Checkout Error:', err);
+            if (err.message.includes('Failed to fetch')) {
+                alert("Order Error: Could not reach the server. Please ensure the server is running at http://localhost:3005 and try again.");
+            } else {
+                alert("Order Error: " + err.message);
+            }
         });
 }
 
