@@ -7,6 +7,11 @@
     <title>goats of kaffa</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://kit.fontawesome.com/78444c0a5e.js" crossorigin="anonymous"></script>
+    <script>
+        if (window.location.protocol === 'file:') {
+            alert('CRITICAL: You are opening this file directly from your computer. The server features (Order, Checkout, Admin) will NOT work.\n\nPlease open your browser and go to: http://localhost:3005');
+        }
+    </script>
 </head>
 
 <body>

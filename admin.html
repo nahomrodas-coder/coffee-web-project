@@ -54,6 +54,11 @@
             font-weight: bold;
         }
     </style>
+    <script>
+        if (window.location.protocol === 'file:') {
+            alert('CRITICAL: You are opening this file directly from your computer. Order data will NOT load.\n\nPlease go to: http://localhost:3005/admin.html');
+        }
+    </script>
 </head>
 
 <body>
