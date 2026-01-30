@@ -131,6 +131,15 @@
     </div>
 
     <script>
+<<<<<<< HEAD
+=======
+        // Set default values after load so it doesn't "lock" the field in some browsers
+        window.addEventListener('load', () => {
+            document.getElementById('email').value = "nahom@kaffa.com";
+            document.getElementById('password').value = "WANKE1234";
+        });
+
+>>>>>>> d261d51b5efbaf38baccd9cd8af676296cdfc35b
         async function performLogin() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
