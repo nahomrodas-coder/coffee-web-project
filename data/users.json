@@ -1,0 +1,12 @@
+[
+    {
+        "email": "nahom@kaffa.com",
+        "password": "WANKE1234",
+        "role": "admin"
+    },
+    {
+        "email": "user@gmail.com",
+        "password": "abc",
+        "role": "customer"
+    }
+]

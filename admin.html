@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--light-gray);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--dark-brown);
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout {
+            color: red;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Admin Orders</h1>
+            <a href="index.html" class="logout">Logout</a>
+        </div>
+
+        <div class="controls" style="margin: 20px 0; display: flex; gap: 10px;">
+            <input type="text" id="search-input" placeholder="Search by ID..."
+                style="padding: 8px; border-radius: 5px; border: 1px solid #ddd; flex-grow: 1;">
+            <select id="status-filter" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Preparing">Preparing</option>
+                <option value="Out for Delivery">Out for Delivery</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="orders-body">
+                <!-- Orders will load here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let allOrders = [];
+
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/admin/orders');
+                allOrders = await res.json();
+                renderOrders(allOrders);
+            } catch (err) {
+                console.error(err);
+                alert('Failed to load orders');
+            }
+        }
+
+        function renderOrders(orders) {
+            const tbody = document.getElementById('orders-body');
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.date}</td>
+                    <td>${order.total} birr</td>
+                    <td>
+                        <select onchange="updateStatus(${order.id}, this.value)" style="padding: 5px; border-radius: 3px;">
+                            <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Preparing" ${order.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
+                            <option value="Out for Delivery" ${order.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
+                            <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                            <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateStatus(id, newStatus) {
+            try {
+                const res = await fetch(`/api/admin/orders/${id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    console.log(`Order ${id} updated to ${newStatus}`);
+                } else {
+                    alert('Failed to update status');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Connection error updating status');
+            }
+        }
+
+        // Filtering logic
+        function filterOrders() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+
+            const filtered = allOrders.filter(order => {
+                const matchesSearch = order.id.toString().includes(searchTerm);
+                const matchesStatus = statusFilter === '' || order.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            renderOrders(filtered);
+        }
+
+        document.getElementById('search-input').addEventListener('input', filterOrders);
+        document.getElementById('status-filter').addEventListener('change', filterOrders);
+
+        loadOrders();
+    </script>
+</body>
+
+</html>
